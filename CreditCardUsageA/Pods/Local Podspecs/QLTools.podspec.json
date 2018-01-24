@@ -1,0 +1,39 @@
+{
+  "name": "QLTools",
+  "version": "0.1.2",
+  "summary": "QLTools is a common tool.",
+  "homepage": "http://192.168.1.206:QLPublicModule/QLTools",
+  "license": {
+    "type": "MIT",
+    "file": "LICENSE"
+  },
+  "authors": {
+    "wangfaguo": "452290424@qq.com"
+  },
+  "source": {
+    "git": "git@192.168.1.206:QLPublicModule/QLTools.git",
+    "tag": "0.1.2"
+  },
+  "platforms": {
+    "ios": "7.0"
+  },
+  "source_files": "QLTools/Classes/QLToolsHeader.h",
+  "public_header_files": "QLTools/Classes/QLToolsHeader.h",
+  "subspecs": [
+    {
+      "name": "NSStringExtension",
+      "source_files": "QLTools/Classes/NSString+Extension.{h,m}",
+      "public_header_files": "QLTools/Classes/NSString+Extension.h"
+    },
+    {
+      "name": "UIImageExtension",
+      "source_files": "QLTools/Classes/UIImage+Extension.{h,m}",
+      "public_header_files": "QLTools/Classes/UIImage+Extension.h"
+    },
+    {
+      "name": "UIColorExtension",
+      "source_files": "QLTools/Classes/UIColor+Extension.{h,m}",
+      "public_header_files": "QLTools/Classes/UIColor+Extension.h"
+    }
+  ]
+}

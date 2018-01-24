@@ -1,0 +1,40 @@
+{
+  "name": "QLEESDK",
+  "version": "1.0.1",
+  "summary": "A short description of QLEESDK.",
+  "homepage": "http://192.168.1.206:8080/QLPublicModule/QLEESDK",
+  "license": {
+    "type": "MIT",
+    "file": "LICENSE"
+  },
+  "authors": {
+    "wangfaguo": "452290424@qq.com"
+  },
+  "source": {
+    "git": "git@192.168.1.206:QLPublicModule/QLEESDK.git",
+    "tag": "1.0.1"
+  },
+  "frameworks": [
+    "UIKit",
+    "SystemConfiguration",
+    "MobileCoreServices",
+    "CoreGraphics",
+    "Security",
+    "AdSupport"
+  ],
+  "platforms": {
+    "ios": "7.0"
+  },
+  "source_files": "QLEESDK/Classes/**/*",
+  "public_header_files": "QLEESDK/Classes/**/*.h",
+  "resource_bundles": {
+    "QLEESDK": [
+      "QLEESDK/Assets/**/*"
+    ]
+  },
+  "dependencies": {
+    "AFNetworking": [
+      "~> 3.1.0"
+    ]
+  }
+}

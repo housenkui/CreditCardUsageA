@@ -1,0 +1,33 @@
+platform :ios, '8.0'
+target 'CreditCardUsageA' do
+    
+pod 'WebViewJavascriptBridge', '~> 6.0.2'
+pod 'JPush', '~> 3.0.6'
+pod 'SDWebImage', '~> 4.1.0'
+pod 'UMengAnalytics', '~> 4.1.4'
+pod 'Masonry', '~> 1.0.2'
+pod 'FMDB',             '~> 2.5'
+pod 'MBProgressHUD',    '~> 0.9.1'
+pod 'WCAlertView', '~> 1.0.0'
+pod "QLBaseModel" ,     :git=>"git@192.168.1.206:zhouzhenghua/QLBaseModel.git"
+pod 'QLFileSaveManager',:git => "git@192.168.1.206:zhouzhenghua/QLFileSaveManager.git"
+pod 'QLTools' ,         :git => 'git@192.168.1.206:QLPublicModule/QLTools.git'
+pod 'QLEESDK', :git => 'git@192.168.1.206:QLPublicModule/QLEESDK.git', :tag => '1.0.1'
+
+# 主模块(必须)
+pod 'ShareSDK3',:git => ‘https://github.com/MobClub/ShareSDK-for-iOS-Spec.git'
+
+# UI模块(非必须，需要用到ShareSDK提供的分享菜单栏和分享编辑页面需要以下1行)
+pod 'ShareSDK3/ShareSDKUI',:git => ‘https://github.com/MobClub/ShareSDK-for-iOS-Spec.git'
+
+# 平台SDK模块(对照一下平台，需要的加上，如果只需要QQ、微信、新浪微博，只需要以下3行)
+pod 'ShareSDK3/ShareSDKPlatforms/QQ',:git => ‘https://github.com/MobClub/ShareSDK-for-iOS-Spec.git'
+pod 'ShareSDK3/ShareSDKPlatforms/WeChat',:git => ‘https://github.com/MobClub/ShareSDK-for-iOS-Spec.git'
+
+# 使用配置文件分享模块（非必需）
+pod 'ShareSDK3/ShareSDKConfigurationFile',:git => ‘https://github.com/MobClub/ShareSDK-for-iOS-Spec.git'
+
+# 扩展模块（非必需，用我们的UI要加上）
+pod 'ShareSDK3/ShareSDKExtension',:git => ‘https://github.com/MobClub/ShareSDK-for-iOS-Spec.git'
+
+end

@@ -1,0 +1,23 @@
+{
+  "name": "QLBaseModel",
+  "version": "0.1.0",
+  "summary": "base model",
+  "description": "TODO: Add long description of the pod here.",
+  "homepage": "https://www.mobanker.com",
+  "license": {
+    "type": "MIT",
+    "file": "LICENSE"
+  },
+  "authors": {
+    "zhouzhenghua": "zhouzhenghua@mobanker.com"
+  },
+  "source": {
+    "git": "http://192.168.1.206:8080/zhouzhenghua/QLBaseModel.git",
+    "tag": "0.1.0"
+  },
+  "platforms": {
+    "ios": "7.0"
+  },
+  "requires_arc": true,
+  "source_files": "QLBaseModel/Classes/**/*"
+}

@@ -1,0 +1,22 @@
+{
+  "name": "QLFileSaveManager",
+  "version": "0.1.0",
+  "summary": "QLFileSaveManager.",
+  "description": "TODO: Add long description of the pod here.",
+  "homepage": "https://mobanker.com",
+  "license": {
+    "type": "MIT",
+    "file": "LICENSE"
+  },
+  "authors": {
+    "zhouzhenghua": "zhouzhenghua@mobanker.com"
+  },
+  "source": {
+    "git": "http://192.168.1.206:8080/zhouzhenghua/QLFileSaveManager.git",
+    "tag": "0.1.0"
+  },
+  "platforms": {
+    "ios": "7.0"
+  },
+  "source_files": "QLFileSaveManager/Classes/**/*"
+}
