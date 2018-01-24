@@ -1,0 +1,69 @@
+//
+//  PrefixHeader.pch
+//  WebView
+//
+//  Created by 侯森魁 on 2017/9/5.
+//  Copyright © 2017年 侯森魁. All rights reserved.
+//
+
+#ifndef PrefixHeader_pch
+#define PrefixHeader_pch
+
+#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
+
+#import "Config.h"
+#import "KYDParameterMacro.h"
+#import "KYDInterfaceUrl.h"
+#import "KYDColorMacro.h"
+
+#import "QLHttpManager.h"
+#import "QLLocationManager.h"
+#import "WCAlertView.h"
+#import "QLUtil.h"
+
+
+#import "NSObject+SBJsonWriting.h"
+#import "NSObject+Block.h"
+
+#import "NSString+Extension.h"
+
+#import "UIColor+extension.h"
+#import "UIActivityIndicatorView+Loading.h"
+
+#import "PNCAddressBookModel.h"
+
+
+#import <WebViewJavascriptBridge.h>
+#import <Masonry.h>
+#import <MBProgressHUD/MBProgressHUD.h>
+
+//以下是基础类
+#import "BaseNavigationController.h"
+#import "CustomNavigationBar.h"
+#import "BaseViewController.h"
+#import "BaseWebViewJSBridgeVC.h"
+#import "LoginViewController.h"
+
+
+#import "QLTestField.h"
+#import "SKButton.h"
+#import "UIControl+ClickBlock.h"
+
+#import "JPUSHService.h"
+// 如果需要使用idfa功能所需要引入的头文件（可选）
+#import <AdSupport/AdSupport.h>
+#ifdef NSFoundationVersionNumber_iOS_9_x_Max
+#import <UserNotifications/UserNotifications.h>
+#endif
+
+
+#import "FingerWaveView.h"
+
+#import "UPPaymentControl.h"
+
+#import "UPAPayPlugin.h"
+
+
+
+#endif

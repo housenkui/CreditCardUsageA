@@ -52,6 +52,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 #if SD_UIKIT || SD_WATCH
     UIImageOrientation orientation;
 #endif
+    BOOL responseFromCached;
 }
 
 @synthesize executing = _executing;
@@ -73,6 +74,7 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         _finished = NO;
         _expectedSize = 0;
         _unownedSession = session;
+        responseFromCached = YES; // Initially wrong until `- URLSession:dataTask:willCacheResponse:completionHandler: is called or not called
         _barrierQueue = dispatch_queue_create("com.hackemist.SDWebImageDownloaderOperationBarrierQueue", DISPATCH_QUEUE_CONCURRENT);
     }
     return self;
@@ -169,9 +171,8 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
         for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
             progressBlock(0, NSURLResponseUnknownLength, self.request.URL);
         }
-        __weak typeof(self) weakSelf = self;
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStartNotification object:weakSelf];
+            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStartNotification object:self];
         });
     } else {
         [self callCompletionBlocksWithError:[NSError errorWithDomain:NSURLErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Connection can't be initialized"}]];
@@ -202,9 +203,8 @@ typedef NSMutableDictionary<NSString *, id> SDCallbacksDictionary;
 
     if (self.dataTask) {
         [self.dataTask cancel];
-        __weak typeof(self) weakSelf = self;
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:weakSelf];
+            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:self];
         });
 
         // As we cancelled the connection, its callback won't be called and thus won't
@@ -259,8 +259,7 @@ didReceiveResponse:(NSURLResponse *)response
     
     //'304 Not Modified' is an exceptional one
     if (![response respondsToSelector:@selector(statusCode)] || (((NSHTTPURLResponse *)response).statusCode < 400 && ((NSHTTPURLResponse *)response).statusCode != 304)) {
-        NSInteger expected = (NSInteger)response.expectedContentLength;
-        expected = expected > 0 ? expected : 0;
+        NSInteger expected = response.expectedContentLength > 0 ? (NSInteger)response.expectedContentLength : 0;
         self.expectedSize = expected;
         for (SDWebImageDownloaderProgressBlock progressBlock in [self callbacksForKey:kProgressCallbackKey]) {
             progressBlock(0, expected, self.request.URL);
@@ -268,11 +267,11 @@ didReceiveResponse:(NSURLResponse *)response
         
         self.imageData = [[NSMutableData alloc] initWithCapacity:expected];
         self.response = response;
-        __weak typeof(self) weakSelf = self;
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadReceiveResponseNotification object:weakSelf];
+            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadReceiveResponseNotification object:self];
         });
-    } else {
+    }
+    else {
         NSUInteger code = ((NSHTTPURLResponse *)response).statusCode;
         
         //This is the case when server returns '304 Not Modified'. It means that remote image is not changed.
@@ -282,9 +281,8 @@ didReceiveResponse:(NSURLResponse *)response
         } else {
             [self.dataTask cancel];
         }
-        __weak typeof(self) weakSelf = self;
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:weakSelf];
+            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:self];
         });
         
         [self callCompletionBlocksWithError:[NSError errorWithDomain:NSURLErrorDomain code:((NSHTTPURLResponse *)response).statusCode userInfo:nil]];
@@ -388,7 +386,8 @@ didReceiveResponse:(NSURLResponse *)response
           dataTask:(NSURLSessionDataTask *)dataTask
  willCacheResponse:(NSCachedURLResponse *)proposedResponse
  completionHandler:(void (^)(NSCachedURLResponse *cachedResponse))completionHandler {
-    
+
+    responseFromCached = NO; // If this method is called, it means the response wasn't read from cache
     NSCachedURLResponse *cachedResponse = proposedResponse;
 
     if (self.request.cachePolicy == NSURLRequestReloadIgnoringLocalCacheData) {
@@ -405,11 +404,10 @@ didReceiveResponse:(NSURLResponse *)response
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
     @synchronized(self) {
         self.dataTask = nil;
-        __weak typeof(self) weakSelf = self;
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:weakSelf];
+            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStopNotification object:self];
             if (!error) {
-                [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadFinishNotification object:weakSelf];
+                [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadFinishNotification object:self];
             }
         });
     }
@@ -419,12 +417,15 @@ didReceiveResponse:(NSURLResponse *)response
     } else {
         if ([self callbacksForKey:kCompletedCallbackKey].count > 0) {
             /**
-             *  If you specified to use `NSURLCache`, then the response you get here is what you need.
-             *  if you specified to only use cached data via `SDWebImageDownloaderIgnoreCachedResponse`,
-             *  the response data will be nil.
-             *  So we don't need to check the cache option here, since the system will obey the cache option
+             *  See #1608 and #1623 - apparently, there is a race condition on `NSURLCache` that causes a crash
+             *  Limited the calls to `cachedResponseForRequest:` only for cases where we should ignore the cached response
+             *    and images for which responseFromCached is YES (only the ones that cannot be cached).
+             *  Note: responseFromCached is set to NO inside `willCacheResponse:`. This method doesn't get called for large images or images behind authentication
              */
-            if (self.imageData) {
+            if (self.options & SDWebImageDownloaderIgnoreCachedResponse && responseFromCached && [[NSURLCache sharedURLCache] cachedResponseForRequest:self.request]) {
+                // hack
+                [self callCompletionBlocksWithImage:nil imageData:nil error:nil finished:YES];
+            } else if (self.imageData) {
                 UIImage *image = [UIImage sd_imageWithData:self.imageData];
                 NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
                 image = [self scaledImageForKey:key image:image];
